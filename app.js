@@ -1,21 +1,36 @@
 const express=require("express");
 const connectDb=require("./src/config/database");
-const User=require("./src/models/user");
+const mongoose=require("mongoose");
+
+
+const cookieParser=require("cookie-parser");
+const authRouter=require("./src/routes/auth");
+const connectionRequestRouter=require("./src/routes/requests");
+const profileRouter=require("./src/routes/profile");
+const userRouter=require("./src/routes/user");
+
+
+// const mongo_Url="mongodb+srv://sakshitoor6:uzrQuW56X8fquwI9@namastenode.trnbg.mongodb.net/devSwipe";
+// main()
+// .then(()=>{
+//     console.log("connected to database");
+// })
+// .catch((err)=>{
+//    console.log(err);
+// })
+// async function main(){
+//     await mongoose.connect(mongo_Url);
+// }
 
 const app=express();
+app.use(cookieParser());
+app.use(express.json());
 
-app.post("/signup",async(re,res)=>{
-    const user=new User(
-        {
-            firstName:"Sakshi",
-            lastName:"toor",
-            emailId:"sakshitoorgmail.com",
-            password:"sakshitoor"
-        }
-    )
-    await user.save();
-    res.send("new user added");
-})
+
+app.use(authRouter);
+app.use(connectionRequestRouter);
+app.use(profileRouter);
+app.use(userRouter);
 
 connectDb()
 .then(()=>{
