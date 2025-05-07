@@ -12,7 +12,7 @@ authRouter.post("/signup",async(req,res)=>{
         validateSignUp(req);
         
         
-        const {firstName,lastName,emailId,password,age,gender,about,skills}=req.body;
+        const {firstName,lastName,emailId,password}=req.body;
 
          const passwordHash=await bcrypt.hash(password,10);
 
@@ -22,19 +22,24 @@ authRouter.post("/signup",async(req,res)=>{
                 lastName,
                 emailId,
                 password:passwordHash,
-                age,
-                gender,
-                about,
-                skills
+                
             }
          );
 
-        await user.save();
-        res.send("new user added");
+        const savedUser=await user.save();
+        const token=await savedUser.getJWT();
+        // console.log(token);
+    
+       // add token to the cookie and send the response back to user
+        res.cookie("token",token);
+        return res.json({
+            message:"New user added successfully",
+            data:savedUser,
+        });
     }
     
     catch(err){
-        res.status(400).send("ERROR: "+err.message);
+        return res.status(400).send("ERROR: "+err.message);
     }
 })
 
@@ -55,14 +60,16 @@ authRouter.post("/login",async(req,res)=>{
     
        // add token to the cookie and send the response back to user
         res.cookie("token",token);
-        res.send("Login Successful");
-        console.log(cookie);
+       return res.send(user);
+        //console.log(cookie);
     }
     else{
         throw new Error("Invalid credentials");
     }
 }catch(err){
-    res.status(400).send("Error: "+err.message);
+    if(err){
+       return res.status(400).send("Error: "+err.message);
+    }
 }
 })
 
@@ -70,6 +77,6 @@ authRouter.post("/logout",(req,res)=>{
     res.cookie("token",null,{
         expires:new Date(Date.now()),
     })
-    res.send("logged out")
+    return res.send("logged out")
 })
 module.exports=authRouter;

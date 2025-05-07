@@ -3,7 +3,7 @@ const userRouter=express.Router();
 const {userAuth}=require("../middlewares/auth");
 const ConnectionRequest=require("../models/connectionRequest");
 const User = require("../models/user");
-const USER_SAFE_DATA=["firstName","lastName","skills","age","gender"];
+const USER_SAFE_DATA=["firstName","lastName","skills","photoUrl","about","age","gender"];
 // Get all pending requests for the logged in user
 userRouter.get("/user/requests/recieved",userAuth,async(req,res)=>{
     try {
@@ -33,8 +33,8 @@ userRouter.get("/user/connections",userAuth,async(req,res)=>{
                 {fromUserId:loggedInUser._id,status:"accepted"}
             ]
             
-        }).populate("fromUserId",["firstName","lastName"])
-        .populate("toUserId",["firstName","lastName"]);
+        }).populate("fromUserId",USER_SAFE_DATA)
+        .populate("toUserId",USER_SAFE_DATA);
            
         const data=connectionRequests.map((row)=>{
             if(row.fromUserId._id.toString()===loggedInUser._id.toString()){//because we 
